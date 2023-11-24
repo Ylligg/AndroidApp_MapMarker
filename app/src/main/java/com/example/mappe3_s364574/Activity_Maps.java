@@ -51,20 +51,72 @@ public class Activity_Maps extends FragmentActivity implements OnMapReadyCallbac
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        getJSON task = new getJSON();
+        task.execute("https://dave3600.cs.oslomet.no/~s364574/jsonout.php");
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        getJSON task = new getJSON();
-        task.execute("https://dave3600.cs.oslomet.no/~s364574/jsonout.php");
+
+    }
+
+    //gjør kartet klar med markørere fra jsonobjektet
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+
+        try{
+
+            JSONArray mat = new JSONArray(steder);
+
+            for (int i = 0; i < mat.length(); i++) {
+                JSONObject jsonobject = mat.getJSONObject(i);
+                String name = jsonobject.getString("NamePlace");
+                String des = jsonobject.getString("Description");
+                String adress = jsonobject.getString("Address");
+                double cLAT = jsonobject.getDouble("CoordsLAT");
+                double cLONG = jsonobject.getDouble("CoordsLONG");
+
+                LatLng cordinater = new LatLng(cLAT, cLONG);
+                mMap.addMarker(new MarkerOptions().position(cordinater).title("Marker in " + name).snippet("Description: " + des + " Sted: " +adress));
+
+            }
+
+        }catch (JSONException e) {
+            System.out.println("funket ikke å lage markører");
+        }
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(@NonNull LatLng latLng) {
+
+                Toast.makeText(Activity_Maps.this, "CLICK ON MAP" + latLng, Toast.LENGTH_SHORT).show();
+
+                mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in this place"));
+
+            }
+        });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                // on marker click we are getting the title of our marker
+                // which is clicked and displaying it in a toast message.
+                String markerName = marker.getTitle();
+                Toast.makeText(Activity_Maps.this, "Clicked location is " + markerName, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
 
     }
 
     @SuppressLint("StaticFieldLeak")
     @SuppressWarnings("deprecation")
     private class getJSON extends AsyncTask<String, Void,String> {
-        JSONObject jsonObject;
         @Override
         protected String doInBackground(String... urls) {
             String retur = "";
@@ -122,60 +174,4 @@ public class Activity_Maps extends FragmentActivity implements OnMapReadyCallbac
         }
     }
 
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-
-
-        try{
-
-            JSONArray mat = new JSONArray(steder);
-
-            for (int i = 0; i < mat.length(); i++) {
-                JSONObject jsonobject = mat.getJSONObject(i);
-                String name = jsonobject.getString("NamePlace");
-                String des = jsonobject.getString("Description");
-                String adress = jsonobject.getString("Address");
-                double cLAT = jsonobject.getDouble("CoordsLAT");
-                double cLONG = jsonobject.getDouble("CoordsLONG");
-
-                LatLng cordinater = new LatLng(cLAT, cLONG);
-                mMap.addMarker(new MarkerOptions().position(cordinater).title("Marker in " + name));
-
-            }
-
-        }catch (JSONException e) {
-            System.out.println("shit funker ikke");
-        }
-
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-
-
-
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(@NonNull LatLng latLng) {
-
-                Toast.makeText(Activity_Maps.this, "CLICK ON MAP" + latLng, Toast.LENGTH_SHORT).show();
-
-                mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in this place"));
-
-            }
-        });
-
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                // on marker click we are getting the title of our marker
-                // which is clicked and displaying it in a toast message.
-                String markerName = marker.getTitle();
-                Toast.makeText(Activity_Maps.this, "Clicked location is " + markerName, Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-
-    }
 }
