@@ -1,10 +1,10 @@
 package com.example.mappe3_s364574;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 
 import androidx.fragment.app.FragmentActivity;
 
+import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.res.Resources;
 import android.os.Bundle;
@@ -37,7 +37,7 @@ public class Activity_Maps extends FragmentActivity implements OnMapReadyCallbac
 
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
-    EditText sted;
+    EditText sted, beskrivelse, addresse;
     String steder = "";
 
 
@@ -161,9 +161,11 @@ public class Activity_Maps extends FragmentActivity implements OnMapReadyCallbac
                 LayoutInflater layoutInflater = getLayoutInflater();
                 View view = layoutInflater.inflate(R.layout.custom_alert, null);
 
-                sted = (EditText) findViewById(R.id.navnsted);
+                sted = (EditText) view.findViewById(R.id.navnsted);
+                beskrivelse = (EditText) view.findViewById(R.id.beskrivelse);
+                addresse = (EditText) view.findViewById(R.id.addresse);
 
-                new android.app.AlertDialog.Builder(Activity_Maps.this)
+                new AlertDialog.Builder(Activity_Maps.this)
                         .setMessage("ny Markør")
                         .setCancelable(false)
                         .setView(view)
@@ -171,12 +173,10 @@ public class Activity_Maps extends FragmentActivity implements OnMapReadyCallbac
                             @SuppressLint("ResourceType")
                             @Override
                             public void onClick(DialogInterface dialogInterface, int i) {
-
-                                Resources resources = view.getResources();
-
-
-
-                                mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in aaaa"));
+                                String stedtxt = sted.getText().toString();
+                                String beskrivelsetxt = beskrivelse.getText().toString();
+                                String addressetxt = addresse.getText().toString();
+                                mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in " + stedtxt).snippet("Description: " + beskrivelsetxt + " Sted: " + addressetxt));
                                 System.out.println(latLng + " : " + latLng.latitude);
 
                             }
