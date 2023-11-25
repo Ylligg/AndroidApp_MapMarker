@@ -166,7 +166,7 @@ public class Activity_Maps extends FragmentActivity implements OnMapReadyCallbac
                 addresse = (EditText) view.findViewById(R.id.addresse);
 
                 new AlertDialog.Builder(Activity_Maps.this)
-                        .setMessage("ny Markør")
+                        .setMessage("Ny Markør?")
                         .setCancelable(false)
                         .setView(view)
                         .setPositiveButton("ja", new DialogInterface.OnClickListener() {
@@ -178,6 +178,7 @@ public class Activity_Maps extends FragmentActivity implements OnMapReadyCallbac
                                 String addressetxt = addresse.getText().toString();
                                 mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in " + stedtxt).snippet("Description: " + beskrivelsetxt + " Sted: " + addressetxt));
                                 System.out.println(latLng + " : " + latLng.latitude);
+                                postJSON("https://dave3600.cs.oslomet.no/~s364574/jsonin.php?NamePlace=" + stedtxt + "&Description=" + beskrivelsetxt + "&Address=" + addressetxt + "&CoordsLAT=" +latLng.latitude + "&CoordsLONG=" + latLng.longitude);
 
                             }
                         })
