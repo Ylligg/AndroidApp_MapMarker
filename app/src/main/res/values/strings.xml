@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Mappe3-s364574</string>
+    <string name="knapp_main">Trykk for kart</string>
+    <string name="nymarkør">Ny Markør?</string>
+    <string name="navn">Navn på sted:</string>
+    <string name="beskrivelse">Beskrivelse:</string>
+    <string name="addresse">Addresse:</string>
+    <string name="ja">Ja</string>
+    <string name="nei">Nei</string>
 </resources>
