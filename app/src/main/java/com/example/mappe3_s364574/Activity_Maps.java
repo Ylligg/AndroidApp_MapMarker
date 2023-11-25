@@ -1,17 +1,19 @@
 package com.example.mappe3_s364574;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AlertDialog;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.mappe3_s364574.databinding.ActivityMapsBinding;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -27,12 +29,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -40,8 +37,9 @@ public class Activity_Maps extends FragmentActivity implements OnMapReadyCallbac
 
     private GoogleMap mMap;
     private ActivityMapsBinding binding;
-
+    EditText sted;
     String steder = "";
+
 
     @Override
     @SuppressWarnings("deprecation")
@@ -51,68 +49,17 @@ public class Activity_Maps extends FragmentActivity implements OnMapReadyCallbac
         binding = ActivityMapsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        getJSON task = new getJSON();
-        task.execute("https://dave3600.cs.oslomet.no/~s364574/jsonout.php");
-
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
+        getJSON task = new getJSON();
+        task.execute("https://dave3600.cs.oslomet.no/~s364574/jsonout.php");
 
     }
 
-    //gjør kartet klar med markørere fra jsonobjektet
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-
-
-        try{
-
-            JSONArray mat = new JSONArray(steder);
-
-            for (int i = 0; i < mat.length(); i++) {
-                JSONObject jsonobject = mat.getJSONObject(i);
-                String name = jsonobject.getString("NamePlace");
-                String des = jsonobject.getString("Description");
-                String adress = jsonobject.getString("Address");
-                double cLAT = jsonobject.getDouble("CoordsLAT");
-                double cLONG = jsonobject.getDouble("CoordsLONG");
-
-                LatLng cordinater = new LatLng(cLAT, cLONG);
-                mMap.addMarker(new MarkerOptions().position(cordinater).title("Marker in " + name).snippet("Description: " + des + " Sted: " +adress));
-
-            }
-
-        }catch (JSONException e) {
-            System.out.println("funket ikke å lage markører");
-        }
-
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(@NonNull LatLng latLng) {
-
-                Toast.makeText(Activity_Maps.this, "CLICK ON MAP" + latLng, Toast.LENGTH_SHORT).show();
-
-                mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in this place"));
-
-            }
-        });
-
-        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                // on marker click we are getting the title of our marker
-                // which is clicked and displaying it in a toast message.
-                String markerName = marker.getTitle();
-                Toast.makeText(Activity_Maps.this, "Clicked location is " + markerName, Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-
-    }
 
     @SuppressLint("StaticFieldLeak")
     @SuppressWarnings("deprecation")
@@ -154,7 +101,6 @@ public class Activity_Maps extends FragmentActivity implements OnMapReadyCallbac
                             String cLAT = jsonobject.getString("CoordsLAT");
                             String cLONG = jsonobject.getString("CoordsLONG");
 
-
                             retur = retur + "Place: "+ name +" Description: "+ des +" Address: "+ adress +" Latitude: "+ cLAT +" Longitude: "+ cLONG + "\n\n";
                         }
                         return retur;
@@ -172,6 +118,101 @@ public class Activity_Maps extends FragmentActivity implements OnMapReadyCallbac
         protected void onPostExecute(String ss) {
             System.out.println(ss);
         }
+    }
+
+    //gjør kartet klar med markørere fra jsonobjektet
+
+    @Override
+    public void onMapReady(@NonNull GoogleMap googleMap) {
+        mMap = googleMap;
+
+        if(mMap!=null) {
+
+        mMap.setOnMapLoadedCallback(new GoogleMap.OnMapLoadedCallback() {
+            @Override
+            public void onMapLoaded() {
+
+                try{
+                    JSONArray mat = new JSONArray(steder);
+                    for (int i = 0; i < mat.length(); i++) {
+                        JSONObject jsonobject = mat.getJSONObject(i);
+                        String name = jsonobject.getString("NamePlace");
+                        String des = jsonobject.getString("Description");
+                        String adress = jsonobject.getString("Address");
+                        double cLAT = jsonobject.getDouble("CoordsLAT");
+                        double cLONG = jsonobject.getDouble("CoordsLONG");
+
+                        LatLng coordinater = new LatLng(cLAT, cLONG);
+                        mMap.addMarker(new MarkerOptions().position(coordinater).title("Marker in " + name).snippet("Description: " + des + " Sted: " + adress));
+
+                    }
+
+                }catch (JSONException e) {
+                    System.out.println("funket ikke å lage markører");
+                }
+            }
+        });
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(@NonNull LatLng latLng) {
+
+                Toast.makeText(Activity_Maps.this, "CLICK ON MAP" + latLng, Toast.LENGTH_SHORT).show();
+                LayoutInflater layoutInflater = getLayoutInflater();
+                View view = layoutInflater.inflate(R.layout.custom_alert, null);
+
+                sted = (EditText) findViewById(R.id.navnsted);
+
+                new android.app.AlertDialog.Builder(Activity_Maps.this)
+                        .setMessage("ny Markør")
+                        .setCancelable(false)
+                        .setView(view)
+                        .setPositiveButton("ja", new DialogInterface.OnClickListener() {
+                            @SuppressLint("ResourceType")
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                                Resources resources = view.getResources();
+
+
+
+                                mMap.addMarker(new MarkerOptions().position(latLng).title("Marker in aaaa"));
+                                System.out.println(latLng + " : " + latLng.latitude);
+
+                            }
+                        })
+                        .setNegativeButton("nei", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                            }
+                        })
+                        .show();
+            }
+        });
+
+        mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                // on marker click we are getting the title of our marker
+                // which is clicked and displaying it in a toast message.
+                String markerName = marker.getTitle();
+                Toast.makeText(Activity_Maps.this, "Clicked location is " + markerName, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
+
+    }
+
+    }
+
+    @SuppressLint("StaticFieldLeak")
+    @SuppressWarnings("deprecation")
+    private void postJSON(String url){
+
+        getJSON post = new getJSON();
+        post.execute(url);
+
     }
 
 }
